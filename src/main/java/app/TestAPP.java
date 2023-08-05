@@ -1,8 +1,16 @@
 package app;
 
+
+import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.jboss.jandex.Main;
 
 import core.util.HibernateUtil;
@@ -10,8 +18,32 @@ import web.member.pojo.Member;
 
 public class TestAPP {
      public static void main(String[] args) {
-//		SessionFactory sessionFactory =HibernateUtil.getSessionFactory();
-//		Session session = sessionFactory.openSession();
+		SessionFactory sessionFactory =HibernateUtil.getSessionFactory();
+		Session session = sessionFactory.openSession();
+		
+		//select USERNAME ,NICKNAME
+		//from MEMBER
+		//where USERNAME = ? and PASSWORD =?
+		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<Member> criteriaQuery = criteriaBuilder.createQuery(Member.class);
+		//from MEMBER
+		Root<Member> root =criteriaQuery.from(Member.class);
+		//where USERNAME = ? and PASSWORD =?
+		criteriaQuery.where(criteriaBuilder.and(criteriaBuilder.equal(root.get("username"),"admin" ),
+				criteriaBuilder.equal(root.get("password"),"P@ssw0rd")));
+		
+		//select USERNAME , NICKNAME
+		criteriaQuery.multiselect(root.get("username"),root.get("nickname"));
+		//order by ID
+		criteriaQuery.orderBy(criteriaBuilder.asc(root.get("id")));
+		
+		Member member = session.createQuery(criteriaQuery).uniqueResult();
+		System.out.println(member.getNickname());
+		
+		
+		
+		
+		
 //		Member member =session.get(Member.class, 1);
 //		System.out.println(member.getNickname());
 //		
@@ -39,6 +71,11 @@ public class TestAPP {
     	 
     	 //查詢
 //    	 System.out.println(app.selectById(2).getNickname());
+    	 //查多
+//    	 for (Member member : app.selectAll()) {
+//    	       System.out.println(member.getNickname());
+//    	      }
+    	 
 	}
      
      public Integer insert(Member member) {
@@ -112,4 +149,20 @@ public class TestAPP {
     	 return null;
      }
      
+     public List<Member> selectAll() {
+    	 SessionFactory sessionFactory =HibernateUtil.getSessionFactory();
+    	 Session session = sessionFactory.openSession();
+    	 try {
+			Transaction transaction=session.beginTransaction();
+			Query<Member> query = session.createQuery(
+					"SELECT new web.member.pojo.Member(username,nickname) FROM Member", Member.class);
+			   List<Member> list = query.getResultList();
+			    transaction.commit();
+			    return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+			session.getTransaction().rollback();
+		}
+    	 return null;
+     }
 }
