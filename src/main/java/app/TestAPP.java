@@ -14,12 +14,33 @@ import org.hibernate.query.Query;
 import org.jboss.jandex.Main;
 
 import core.util.HibernateUtil;
-import web.member.pojo.Member;
+import web.emp.entity.Dept;
+import web.emp.entity.Emp;
+import web.member.entity.Member;
 
 public class TestAPP {
      public static void main(String[] args) {
 		SessionFactory sessionFactory =HibernateUtil.getSessionFactory();
 		Session session = sessionFactory.openSession();
+		//1-N
+//		Dept dept = session.get(Dept.class,30);
+//		var emps =dept.getEmps();
+//		for (var emp : emps ) {
+//			System.out.println(emp.getEname());
+//		}
+		//N-1
+//		Emp emp = session.get(Emp.class,7369);
+//		Dept dept = emp.getDept();
+//		System.out.println(dept.getDeptno());
+//		System.out.println(dept.getDname());
+		
+		Emp emp = session.get(Emp.class,7369);
+		Dept dept = emp.getDept();
+		List<Emp> emps = dept.getEmps();
+		for (Emp tmp : emps ) {
+			System.out.println(tmp.getEname());
+		}
+		
 		
 		//select USERNAME ,NICKNAME
 		//from MEMBER

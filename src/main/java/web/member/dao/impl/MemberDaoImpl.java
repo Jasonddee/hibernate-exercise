@@ -1,6 +1,5 @@
 package web.member.dao.impl;
 
-import static core.util.CommonUtil.getConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +15,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import web.member.dao.MemberDao;
-import web.member.pojo.Member;
+import web.member.entity.Member;
 
 public class MemberDaoImpl implements MemberDao {
 
@@ -143,9 +142,9 @@ public class MemberDaoImpl implements MemberDao {
 	
 	@Override
 	public Member selectForLogin(String username, String password) {
-		final String sql = "select * from MEMBER where USERNAME = :username? and PASSWORD = :password";
+		final String sql = "select * from MEMBER where USERNAME = :username and PASSWORD = :password";
 		return getSession()
-				.createQuery(sql,Member.class)
+				.createNativeQuery(sql,Member.class)
 				.setParameter("username", username)
 				.setParameter("password", password)
 				.uniqueResult();
